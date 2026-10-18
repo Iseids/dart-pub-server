@@ -7,11 +7,11 @@ services:
     env_file:
       - .env
     environment:
-      BIND_ADDRESS: 0.0.0.0:8080
+      BIND_ADDRESS: 0.0.0.0:6844
       DATA_DIR: /data
       DATABASE_URL: sqlite:///data/registry.db
     ports:
-      - "127.0.0.1:${HOST_PORT:-8088}:8080"
+      - "${HOST_PORT:-6844}:6844"
     volumes:
       - pub_registry_data:/data
     restart: unless-stopped
