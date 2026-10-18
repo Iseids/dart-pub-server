@@ -1,0 +1,34 @@
+[package]
+name = "dart_pub_server"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+description = "Self-hosted Dart Pub repository using Axum and SQLite"
+
+[[bin]]
+name = "pub-registry"
+path = "src/main.rs"
+
+[dependencies]
+axum = { version = "0.8", features = ["multipart"] }
+tokio = { version = "1", features = ["full"] }
+sqlx = { version = "0.8", default-features = false, features = ["sqlite", "migrate", "macros", "runtime-tokio-rustls"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+serde_yaml = "0.9"
+sha2 = "0.10"
+hex = "0.4"
+base64 = "0.22"
+rand = "0.8"
+uuid = { version = "1", features = ["v4"] }
+flate2 = "1"
+tar = "0.4"
+semver = "1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+tower-http = { version = "0.6", features = ["limit"] }
+tokio-util = { version = "0.7", features = ["io"] }
+dotenvy = "0.15"
+
+[dev-dependencies]
+tempfile = "3"

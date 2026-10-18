@@ -1,0 +1,11 @@
+.git
+.idea
+target
+data
+backups
+.env
+.env.*
+!.env.example
+*.db
+*.db-shm
+*.db-wal

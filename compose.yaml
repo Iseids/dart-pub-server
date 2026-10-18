@@ -1,0 +1,25 @@
+services:
+  registry:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: dart-pub-server:local
+    env_file:
+      - .env
+    environment:
+      BIND_ADDRESS: 0.0.0.0:8080
+      DATA_DIR: /data
+      DATABASE_URL: sqlite:///data/registry.db
+    ports:
+      - "127.0.0.1:${HOST_PORT:-8088}:8080"
+    volumes:
+      - pub_registry_data:/data
+    restart: unless-stopped
+    init: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+
+volumes:
+  pub_registry_data:
