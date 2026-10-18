@@ -132,7 +132,7 @@ pub(crate) async fn home(State(state): State<AppState>, headers: HeaderMap) -> R
     hosted: {url}
     version: ^1.0.0</pre>
     <p>Publish by setting <code>publish_to: {url}</code> in your package pubspec and running <code>dart pub publish</code>. Publishing requires an administrator-created token and HTTPS.</p>
-    <p><a href="{url}/healthz">Health status</a></p></div></main></body></html>"##);
+    <p><a href="{url}/admin">Registry administration</a> · <a href="{url}/healthz">Health status</a></p></div></main></body></html>"##);
     Ok(Html(body))
 }
 

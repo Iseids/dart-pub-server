@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Registry Admin</title>
+  <style>
+    :root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#182230;background:#f4f6f8;font-synthesis:none;text-rendering:optimizeLegibility;--navy:#14243a;--muted:#748196;--line:#e5e9ef;--blue:#2864dc;--green:#13795b;--red:#b33a49}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh}button,input,select{font:inherit}button{cursor:pointer}
+    .hidden{display:none!important}.login-wrap{min-height:100vh;display:grid;place-items:center;padding:24px;background:radial-gradient(ellipse at 20% 5%,#e1ebff 0,transparent 38%),#f4f6f8}
+    .login-card{width:min(430px,100%);background:#fff;border:1px solid var(--line);border-radius:18px;padding:34px;box-shadow:0 18px 55px #15253b12}
+    .brand{display:flex;align-items:center;gap:12px;font-weight:750;letter-spacing:-.02em}.brand-mark{display:grid;place-items:center;width:40px;height:40px;border-radius:12px;background:var(--navy);color:#fff;font-size:14px;letter-spacing:.08em}
+    h1{font-size:26px;letter-spacing:-.04em;margin:26px 0 8px}.subtitle{color:var(--muted);font-size:14px;line-height:1.6;margin:0 0 24px}
+    label{display:block;font-size:13px;font-weight:650;margin:16px 0 7px}input,select{width:100%;border:1px solid #d9dfe8;border-radius:9px;padding:11px 12px;background:#fff;color:#182230;outline:none}input:focus,select:focus{border-color:#7ca5f8;box-shadow:0 0 0 3px #2864dc1b}
+    .btn{border:0;border-radius:9px;padding:10px 15px;font-weight:650;transition:filter .15s,transform .15s}.btn:hover{filter:brightness(.96)}.btn:active{transform:translateY(1px)}.btn-primary{color:#fff;background:var(--blue)}.btn-dark{color:#fff;background:#21344f}.btn-light{color:#24344a;background:#eef2f7}.btn-danger{color:#a52d3c;background:#fff0f1;border:1px solid #f3d5d8}.btn-block{width:100%;margin-top:22px;padding:12px}.error{color:var(--red);font-size:13px;line-height:1.5;margin-top:13px}.notice{padding:12px 14px;border:1px solid #f0dda9;background:#fff9e8;color:#715516;border-radius:10px;font-size:13px;line-height:1.55;margin:18px 0}
+    .shell{min-height:100vh;display:grid;grid-template-columns:238px minmax(0,1fr)}.sidebar{background:var(--navy);color:#fff;padding:23px 15px;display:flex;flex-direction:column;gap:34px}.sidebar .brand{padding:0 9px}.sidebar .brand-mark{background:#29466d;color:#bcd3ff}.side-label{font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:#91a2ba;padding:0 12px 8px}.nav{display:grid;gap:5px}.nav button{width:100%;display:flex;align-items:center;gap:11px;border:0;color:#b7c4d5;background:transparent;text-align:left;padding:11px 12px;border-radius:9px;font-size:13px;font-weight:600}.nav button:hover,.nav button.active{color:#fff;background:#ffffff14}.nav-icon{width:18px;text-align:center;font-size:15px}.side-foot{margin-top:auto;border-top:1px solid #ffffff20;padding:18px 10px 3px;color:#bdcada;font-size:12px;line-height:1.7}.side-foot strong{color:#fff;font-weight:600}
+    .main{min-width:0}.topbar{height:76px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 clamp(20px,4vw,54px)}.top-title{font-size:15px;font-weight:700}.user-area{display:flex;align-items:center;gap:12px;font-size:13px;color:#536176}.avatar{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:#e8efff;color:#245ac1;font-weight:750}.content{max-width:1280px;padding:34px clamp(20px,4vw,54px);margin:0 auto}.page-head{display:flex;justify-content:space-between;gap:20px;align-items:flex-end;margin-bottom:24px}.page-head h1{margin:0 0 5px;font-size:25px}.page-head p{margin:0;color:var(--muted);font-size:13px}.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-bottom:24px}.stat,.panel{background:#fff;border:1px solid var(--line);border-radius:13px}.stat{padding:18px 20px}.stat-label{font-size:12px;color:var(--muted);font-weight:600}.stat-value{font-size:26px;letter-spacing:-.04em;font-weight:750;margin-top:9px}.stat-note{color:#8894a6;font-size:11px;margin-top:4px}.panel{padding:20px;margin-bottom:18px}.panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:15px}.panel h2{font-size:15px;margin:0}.panel p{font-size:13px;line-height:1.6;color:var(--muted)}.toolbar{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:13px}.search{max-width:310px}.table-wrap{width:100%;overflow:auto}table{border-collapse:collapse;width:100%;font-size:12px;min-width:620px}th{text-align:left;color:#8290a3;font-size:10px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;padding:11px 12px;border-bottom:1px solid var(--line)}td{padding:13px 12px;border-bottom:1px solid #edf0f4;color:#334155;vertical-align:middle}tr:last-child td{border-bottom:0}.pkg-name,.token-name{font-weight:700;color:#1c2c42}.muted{color:var(--muted)}.badge{display:inline-flex;align-items:center;border-radius:20px;padding:4px 8px;font-size:10px;font-weight:700;background:#edf3ff;color:#315da5}.badge.read{background:#f1efff;color:#6453a7}.badge.revoked{background:#fff0f1;color:#ad3b48}.badge.active{background:#eaf7f2;color:#187654}.empty{text-align:center;color:#8290a3;padding:32px 10px;font-size:13px}.form-grid{display:grid;grid-template-columns:1.3fr .8fr auto;align-items:end;gap:12px}.field label{margin-top:0}.form-grid .btn{height:42px}.token-result{margin-top:16px;border:1px solid #b7dfd0;background:#f0faf6;border-radius:10px;padding:14px}.token-result strong{font-size:12px;color:#17664e}.token-secret{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all;background:#fff;border:1px solid #cce6db;border-radius:7px;padding:10px;margin:9px 0;font-size:12px}.password-grid{max-width:460px}.password-grid .btn{margin-top:18px}.tab{display:none}.tab.active{display:block}.mobile-brand{display:none}
+    @media(max-width:860px){.shell{grid-template-columns:190px minmax(0,1fr)}.sidebar{padding-inline:10px}.stats{gap:10px}.stat{padding:15px}}
+    @media(max-width:650px){.shell{display:block}.sidebar{position:sticky;top:0;z-index:3;padding:10px 12px;gap:0}.sidebar .brand{display:none}.sidebar>div:first-of-type{display:none}.nav{display:flex;overflow:auto;gap:5px}.nav button{width:auto;white-space:nowrap;padding:9px 11px}.nav-icon{display:none}.side-foot{display:none}.topbar{height:62px;padding:0 18px}.content{padding:24px 16px}.stats{grid-template-columns:1fr;gap:9px}.stat{display:flex;align-items:center;justify-content:space-between;padding:13px 15px}.stat-value{font-size:21px;margin:0}.stat-note{display:none}.form-grid{grid-template-columns:1fr}.form-grid .btn{width:100%}.page-head{align-items:flex-start;flex-direction:column}.panel{padding:16px}.user-area .btn{padding:8px 10px}}
+  </style>
+</head>
+<body>
+  <section id="login-view" class="login-wrap">
+    <div class="login-card">
+      <div class="brand"><span class="brand-mark">PUB</span><span>Dart Pub Registry</span></div>
+      <h1 id="login-title">Admin sign in</h1>
+      <p id="login-subtitle" class="subtitle">Sign in to manage registry packages and access tokens.</p>
+      <form id="login-form">
+        <label for="username">Username</label><input id="username" name="username" autocomplete="username" required>
+        <label for="login-password">Password</label><input id="login-password" name="password" type="password" autocomplete="current-password" required>
+        <button class="btn btn-primary btn-block" type="submit">Sign in</button>
+        <div id="login-error" class="error hidden" role="alert"></div>
+      </form>
+      <form id="initial-password-form" class="hidden">
+        <div class="notice">Set a new password to finish the first sign-in. Use at least 12 characters.</div>
+        <label for="current-password">Current password</label><input id="current-password" name="current_password" type="password" autocomplete="current-password" required>
+        <label for="new-password">New password</label><input id="new-password" name="new_password" type="password" autocomplete="new-password" minlength="12" required>
+        <label for="confirm-password">Confirm new password</label><input id="confirm-password" type="password" autocomplete="new-password" minlength="12" required>
+        <button class="btn btn-primary btn-block" type="submit">Save new password</button>
+        <div id="password-error" class="error hidden" role="alert"></div>
+      </form>
+    </div>
+  </section>
+
+  <section id="admin-view" class="shell hidden">
+    <aside class="sidebar">
+      <div class="brand"><span class="brand-mark">PUB</span><span>Dart Pub Registry</span></div>
+      <div><div class="side-label">Workspace</div>
+        <nav class="nav" aria-label="Admin navigation">
+          <button class="active" data-tab="overview"><span class="nav-icon">◫</span>Overview</button>
+          <button data-tab="packages"><span class="nav-icon">▤</span>Packages</button>
+          <button data-tab="tokens"><span class="nav-icon">⌘</span>Access tokens</button>
+          <button data-tab="security"><span class="nav-icon">◇</span>Security</button>
+        </nav>
+      </div>
+      <div class="side-foot">Private package registry<br><strong>Administration</strong></div>
+    </aside>
+    <div class="main">
+      <header class="topbar"><div id="top-title" class="top-title">Overview</div><div class="user-area"><span id="user-name"></span><span id="user-avatar" class="avatar">A</span><button id="logout-button" class="btn btn-light" type="button">Sign out</button></div></header>
+      <main class="content">
+        <section id="tab-overview" class="tab active">
+          <div class="page-head"><div><h1>Registry overview</h1><p>See what is published and how registry access is configured.</p></div><button class="btn btn-dark" type="button" data-go="packages">Browse packages</button></div>
+          <div class="stats"><article class="stat"><div><div class="stat-label">Packages</div><div class="stat-note">Unique package names</div></div><div id="stat-packages" class="stat-value">—</div></article><article class="stat"><div><div class="stat-label">Versions</div><div class="stat-note">Published immutable releases</div></div><div id="stat-versions" class="stat-value">—</div></article><article class="stat"><div><div class="stat-label">Active tokens</div><div class="stat-note">Read and publish credentials</div></div><div id="stat-tokens" class="stat-value">—</div></article></div>
+          <section class="panel"><div class="panel-head"><h2>Recently published</h2><button class="btn btn-light" type="button" data-go="packages">View all</button></div><div id="recent-packages"></div></section>
+        </section>
+
+        <section id="tab-packages" class="tab">
+          <div class="page-head"><div><h1>Packages</h1><p>Published package versions stored in this registry.</p></div></div>
+          <section class="panel"><div class="toolbar"><h2>Published versions</h2><input id="package-search" class="search" type="search" placeholder="Filter by package name"></div><div id="packages-table"></div></section>
+        </section>
+
+        <section id="tab-tokens" class="tab">
+          <div class="page-head"><div><h1>Access tokens</h1><p>Create and revoke credentials for Dart and Flutter clients.</p></div></div>
+          <section class="panel"><div class="panel-head"><h2>Create a token</h2></div><form id="token-form" class="form-grid"><div class="field"><label for="token-name">Token name</label><input id="token-name" name="name" maxlength="100" placeholder="build-agent" required></div><div class="field"><label for="token-role">Permission</label><select id="token-role" name="role"><option value="publish">Publish and read</option><option value="read">Read only</option></select></div><button class="btn btn-primary" type="submit">Generate token</button></form><div id="token-result" class="token-result hidden"><strong>Copy this token now. It is shown only once.</strong><div id="token-secret" class="token-secret"></div><button id="copy-token" class="btn btn-light" type="button">Copy token</button></div><div id="token-error" class="error hidden" role="alert"></div></section>
+          <section class="panel"><div class="panel-head"><h2>Existing tokens</h2><button id="refresh-tokens" class="btn btn-light" type="button">Refresh</button></div><div id="tokens-table"></div></section>
+        </section>
+
+        <section id="tab-security" class="tab">
+          <div class="page-head"><div><h1>Security</h1><p>Update the administrator password for this registry.</p></div></div>
+          <section class="panel"><h2>Change password</h2><p>Changing your password signs out any other active admin sessions. Choose at least 12 characters.</p><form id="password-change-form" class="password-grid"><label for="security-current-password">Current password</label><input id="security-current-password" name="current_password" type="password" autocomplete="current-password" required><label for="security-new-password">New password</label><input id="security-new-password" name="new_password" type="password" minlength="12" autocomplete="new-password" required><label for="security-confirm-password">Confirm new password</label><input id="security-confirm-password" type="password" minlength="12" autocomplete="new-password" required><button class="btn btn-primary" type="submit">Update password</button><div id="security-error" class="error hidden" role="alert"></div><div id="security-success" class="muted hidden" role="status">Password updated.</div></form></section>
+        </section>
+      </main>
+    </div>
+  </section>
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const state = { username: '', packages: [], tokens: [] };
+    const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+    const formatBytes = (value) => { const bytes = Number(value) || 0; if (bytes < 1024) return `${bytes} B`; if (bytes < 1048576) return `${(bytes/1024).toFixed(1)} KB`; return `${(bytes/1048576).toFixed(2)} MB`; };
+    const formatDate = (value) => value ? new Date(`${value.replace(' ', 'T')}Z`).toLocaleString() : 'Never';
+    async function api(path, form) {
+      const options = { credentials: 'same-origin', headers: {} };
+      if (form) { options.method = 'POST'; options.headers['Content-Type'] = 'application/x-www-form-urlencoded;charset=UTF-8'; options.body = new URLSearchParams(form); }
+      const response = await fetch(path, options);
+      const body = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(body.error || `Request failed (${response.status})`);
+      return body;
+    }
+    function showError(element, message) { element.textContent = message; element.classList.remove('hidden'); }
+    function clearError(element) { element.textContent = ''; element.classList.add('hidden'); }
+    function showLogin() { $('login-view').classList.remove('hidden'); $('admin-view').classList.add('hidden'); $('login-form').classList.remove('hidden'); $('initial-password-form').classList.add('hidden'); $('login-title').textContent = 'Admin sign in'; $('login-subtitle').textContent = 'Sign in to manage registry packages and access tokens.'; }
+    function showInitialPassword() { $('login-view').classList.remove('hidden'); $('admin-view').classList.add('hidden'); $('login-form').classList.add('hidden'); $('initial-password-form').classList.remove('hidden'); $('login-title').textContent = 'Secure your admin account'; $('login-subtitle').textContent = 'Your first sign-in requires a new password.'; }
+    function showAdmin() { $('login-view').classList.add('hidden'); $('admin-view').classList.remove('hidden'); $('user-name').textContent = state.username; $('user-avatar').textContent = state.username.slice(0,1).toUpperCase(); }
+    function table(rows, headers, emptyText) { if (!rows.length) return `<div class="empty">${escapeHtml(emptyText)}</div>`; return `<div class="table-wrap"><table><thead><tr>${headers.map((item)=>`<th>${item}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table></div>`; }
+    function renderPackages(target, list, compact = false) {
+      const rows = list.map((pkg) => `<tr><td><span class="pkg-name">${escapeHtml(pkg.name)}</span></td><td>${escapeHtml(pkg.version)}</td><td>${formatBytes(pkg.archive_size)}</td><td>${escapeHtml(formatDate(pkg.created_at))}</td></tr>`);
+      $(target).innerHTML = table(rows, ['Package','Version','Archive size','Published'], compact ? 'No packages have been published yet.' : 'No package versions match your search.');
+    }
+    function renderTokens() {
+      const rows = state.tokens.map((token) => `<tr><td><span class="token-name">${escapeHtml(token.name)}</span></td><td><span class="badge ${token.role === 'read' ? 'read' : ''}">${token.role === 'read' ? 'READ ONLY' : 'PUBLISH'}</span></td><td>${escapeHtml(formatDate(token.created_at))}</td><td>${escapeHtml(formatDate(token.last_used_at))}</td><td>${token.revoked_at ? '<span class="badge revoked">REVOKED</span>' : '<span class="badge active">ACTIVE</span>'}</td><td>${token.revoked_at ? '' : `<button class="btn btn-danger" type="button" data-revoke="${escapeHtml(token.name)}">Revoke</button>`}</td></tr>`);
+      $('tokens-table').innerHTML = table(rows, ['Name','Role','Created','Last used','Status',''], 'No access tokens have been created.');
+      $('tokens-table').querySelectorAll('[data-revoke]').forEach((button) => button.addEventListener('click', async () => { if (!confirm(`Revoke the token “${button.dataset.revoke}”?`)) return; try { await api('/admin/api/tokens/revoke', {name: button.dataset.revoke}); await loadTokens(); } catch (error) { alert(error.message); } }));
+    }
+    async function loadPackages() { const result = await api('/admin/api/packages'); state.packages = result.packages; renderPackages('packages-table', state.packages); renderPackages('recent-packages', state.packages.slice(0,5), true); $('stat-packages').textContent = new Set(state.packages.map((item)=>item.name)).size; $('stat-versions').textContent = state.packages.length; }
+    async function loadTokens() { const result = await api('/admin/api/tokens'); state.tokens = result.tokens; renderTokens(); $('stat-tokens').textContent = state.tokens.filter((item)=>!item.revoked_at).length; }
+    async function enterDashboard() { showAdmin(); await Promise.all([loadPackages(), loadTokens()]); }
+    function activateTab(name) { document.querySelectorAll('.nav button').forEach((button)=>button.classList.toggle('active',button.dataset.tab===name)); document.querySelectorAll('.tab').forEach((tab)=>tab.classList.toggle('active',tab.id===`tab-${name}`)); $('top-title').textContent = ({overview:'Overview',packages:'Packages',tokens:'Access tokens',security:'Security'})[name]; if (name==='packages') loadPackages().catch((error)=>alert(error.message)); if (name==='tokens') loadTokens().catch((error)=>alert(error.message)); }
+    document.querySelectorAll('.nav button').forEach((button)=>button.addEventListener('click',()=>activateTab(button.dataset.tab)));
+    document.querySelectorAll('[data-go]').forEach((button)=>button.addEventListener('click',()=>activateTab(button.dataset.go)));
+    $('login-form').addEventListener('submit', async (event) => { event.preventDefault(); clearError($('login-error')); try { const result = await api('/admin/api/login', new FormData(event.currentTarget)); state.username = result.username; if (result.must_change_password) showInitialPassword(); else await enterDashboard(); } catch (error) { showError($('login-error'),error.message); } });
+    $('initial-password-form').addEventListener('submit', async (event) => { event.preventDefault(); clearError($('password-error')); if ($('new-password').value !== $('confirm-password').value) return showError($('password-error'),'The new passwords do not match.'); try { await api('/admin/api/password', {current_password:$('current-password').value,new_password:$('new-password').value}); state.username = $('username').value; await enterDashboard(); } catch (error) { showError($('password-error'),error.message); } });
+    $('password-change-form').addEventListener('submit', async (event) => { event.preventDefault(); clearError($('security-error')); $('security-success').classList.add('hidden'); if ($('security-new-password').value !== $('security-confirm-password').value) return showError($('security-error'),'The new passwords do not match.'); try { await api('/admin/api/password', new FormData(event.currentTarget)); event.currentTarget.reset(); $('security-success').classList.remove('hidden'); } catch (error) { showError($('security-error'),error.message); } });
+    $('token-form').addEventListener('submit', async (event) => { event.preventDefault(); clearError($('token-error')); $('token-result').classList.add('hidden'); try { const result = await api('/admin/api/tokens', new FormData(event.currentTarget)); $('token-secret').textContent = result.token; $('token-result').classList.remove('hidden'); event.currentTarget.reset(); await loadTokens(); } catch (error) { showError($('token-error'),error.message); } });
+    $('copy-token').addEventListener('click', async () => { await navigator.clipboard.writeText($('token-secret').textContent); $('copy-token').textContent='Copied'; setTimeout(()=>$('copy-token').textContent='Copy token',1500); });
+    $('refresh-tokens').addEventListener('click',()=>loadTokens().catch((error)=>alert(error.message)));
+    $('package-search').addEventListener('input',(event)=>{ const term=event.target.value.trim().toLowerCase(); renderPackages('packages-table',state.packages.filter((item)=>item.name.toLowerCase().includes(term))); });
+    $('logout-button').addEventListener('click',async()=>{ await api('/admin/api/logout',{}); state.username=''; showLogin(); });
+    (async()=>{ try { const result = await api('/admin/api/me'); state.username=result.username; if(result.must_change_password) showInitialPassword(); else await enterDashboard(); } catch (_) { showLogin(); } })();
+  </script>
+</body>
+</html>

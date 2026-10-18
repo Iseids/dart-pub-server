@@ -24,7 +24,7 @@ RUN apt-get update \
 
 COPY --from=builder /app/target/release/pub-registry /usr/local/bin/pub-registry
 
-ENV BIND_ADDRESS=0.0.0.0:8080 \
+ENV BIND_ADDRESS=0.0.0.0:6844 \
     DATA_DIR=/data \
     DATABASE_URL=sqlite:///data/registry.db \
     MAX_UPLOAD_MB=32 \
@@ -33,11 +33,11 @@ ENV BIND_ADDRESS=0.0.0.0:8080 \
 
 WORKDIR /data
 VOLUME ["/data"]
-EXPOSE 8080
+EXPOSE 6844
 USER registry:registry
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-    CMD curl --fail --silent http://127.0.0.1:8080/healthz || exit 1
+    CMD curl --fail --silent http://127.0.0.1:6844/healthz || exit 1
 
 ENTRYPOINT ["/usr/local/bin/pub-registry"]
 CMD ["serve"]

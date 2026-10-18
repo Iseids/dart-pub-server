@@ -12,14 +12,14 @@ It implements the central parts of the [Hosted Pub Repository API v2](https://da
 - Optional private downloads (`PUBLIC_READS=false`); **downloads are public by default**, so restrict the Nginx hostname to your network/VPN or switch to private reads.
 - SQLite WAL metadata, durable package archives on a persistent Docker volume, immutable package/version pairs.
 - Validates gzip/tar, root `pubspec.yaml`, package name/version, upload size and uncompressed size; streams uploads to disk.
-- Simple browser homepage with a package list, a basic `/api/search`, `GET /healthz`.
+- Browser homepage, authenticated admin dashboard, package and token management, basic `/api/search`, and `GET /healthz`.
 - Public URL configurable for HTTPS reverse proxy and optional Nginx subpath.
 
-> **Deployment scope:** This is a lightweight, single-instance registry for a private network or small team, not a pub.dev mirror. It does **not** proxy third-party packages, implement package ownership per user, provide an authenticated browser admin panel, or accept Sigstore publishing attestations. Package archives are immutable once published. Treat the example as a starting point for production hardening, not an audited product.
+> **Deployment scope:** This is a lightweight, single-instance registry for a private network or small team, not a pub.dev mirror. It does **not** proxy third-party packages, implement package ownership per user, or accept Sigstore publishing attestations. Package archives are immutable once published. Treat the example as a starting point for production hardening, not an audited product.
 
 ## 1. Quick start with Docker Compose
 
-Requirements: Docker Engine and `docker compose` v2, a server running Nginx, and a DNS name resolving to that server. The registry itself listens on port `8080` in Docker and is mapped **only to host localhost:8088**, so Nginx on the host can proxy it.
+Requirements: Docker Engine and `docker compose` v2, a server running Nginx, and a DNS name resolving to that server. The registry listens on port `6844` and Compose publishes it on host port `6844`.
 
 ```bash
 # Inside this project folder:
@@ -32,16 +32,24 @@ Replace `PUBLIC_BASE_URL=https://pub.example.com` with your **exact final** HTTP
 ```bash
 docker compose up -d --build
 docker compose ps
-curl -fsS http://127.0.0.1:8088/healthz
+curl -fsS http://127.0.0.1:6844/healthz
 ```
 
 Expected response: `{"status":"ok"}`.
 
 You can open `https://pub.example.com` in your browser after configuring Nginx.
 
+Open `https://pub.example.com/admin` to sign in to the registry dashboard. On a new data volume, the default username is `admin`. If you set `ADMIN_INITIAL_PASSWORD` in `.env`, use that value. Otherwise, the server generates a random one-time password in a private file inside the data volume:
+
+```bash
+docker compose exec registry cat /data/admin-initial-password
+```
+
+The first sign-in requires you to choose a new password of at least 12 characters; that action removes the one-time password file. Passwords are stored as Argon2 hashes, and the dashboard session cookie is HTTP-only and expires after 12 hours. The dashboard lists published package versions and supports creating and revoking read-only or publishing tokens. A new token secret is displayed only once.
+
 ### Alternative: use a local LAN address
 
-If the Nginx proxy is on a **different physical server**, either put both containers on a Docker network and proxy by service name (`http://registry:8080`), or explicitly expose `8088` on an address accessible to that Nginx host by changing the Compose port mapping. Firewall it to the Nginx server. Do not expose unauthenticated administrative interfaces. Use HTTPS for `dart pub token` / authenticated publishing; Dart deliberately limits use of tokens over plain HTTP.
+If the Nginx proxy is on a **different physical server**, either put both containers on a Docker network and proxy by service name (`http://registry:6844`), or expose host port `6844` on an address accessible to that Nginx host. Firewall it to the Nginx server. Do not expose unauthenticated administrative interfaces. Use HTTPS for `dart pub token` / authenticated publishing; Dart deliberately limits use of tokens over plain HTTP.
 
 ## 2. Nginx + Let's Encrypt
 
@@ -94,7 +102,7 @@ Configure Nginx with the trailing slashes shown below to strip `/dart-pub/` befo
 location = /dart-pub { return 301 /dart-pub/; }
 location /dart-pub/ {
     client_max_body_size 40m;
-    proxy_pass http://127.0.0.1:8088/;
+    proxy_pass http://127.0.0.1:6844/;
     proxy_set_header Host $host;
     proxy_set_header X-Forwarded-Proto $scheme;
     proxy_set_header Authorization $http_authorization;
@@ -231,7 +239,7 @@ If you have a Rust toolchain installed:
 ```bash
 cp .env.example .env
 # For local non-publishing API tests only, use localhost:
-# Set PUBLIC_BASE_URL=http://localhost:8088 in .env
+# Set PUBLIC_BASE_URL=http://localhost:6844 in .env
 mkdir -p data
 cargo test
 cargo run -- serve
@@ -242,7 +250,7 @@ The database URL defaults to `sqlite://./data/registry.db` when running directly
 
 ## Security model and known limitations
 
-- The server validates uploads and stores only hashes of long random bearer tokens, but does not include rate limits, external identity/SSO, or fine-grained per-package authorization. Nginx allowlisting, a VPN, and/or a small trusted team are appropriate controls.
+- The server validates uploads and stores only hashes of long random bearer tokens. Admin passwords use Argon2 hashes; admin sessions are stored as hashes and expire after 12 hours. It does not include external identity/SSO or fine-grained per-package authorization. Nginx allowlisting, a VPN, and/or a small trusted team are appropriate controls.
 - Archive uploads are limited to 32 MiB compressed by default and 256 MiB unpacked, with a 1 MiB pubspec limit. The file is validated without extracting it onto disk.
 - The official Pub protocol supports optional supply-chain attestations. This server does **not** advertise attestation support or accept attestation uploads; a client requiring an attestation will be unable to publish.
 - The registry does not host arbitrary files, mirror pub.dev, offer package removal, generate hosted docs, or automatically flag OSV security advisories.

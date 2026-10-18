@@ -1,4 +1,5 @@
 mod archive;
+mod admin;
 mod auth;
 mod handlers;
 
@@ -21,6 +22,7 @@ pub(crate) struct Config {
     pub public_reads: bool,
     pub max_upload_bytes: usize,
     pub max_unpacked_bytes: u64,
+    pub secure_admin_cookie: bool,
 }
 
 fn env_bool(name: &str, default: bool) -> bool {
@@ -58,7 +60,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     let base_url = env::var("PUBLIC_BASE_URL")
-        .unwrap_or_else(|_| "http://localhost:8088".into())
+        .unwrap_or_else(|_| "http://localhost:6844".into())
         .trim_end_matches('/')
         .to_string();
     if !(base_url.starts_with("https://") || base_url.starts_with("http://"))
@@ -68,12 +70,19 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let max_upload_bytes = env::var("MAX_UPLOAD_MB")
         .unwrap_or_else(|_| "32".into()).parse::<usize>()? * 1024 * 1024;
     let cfg = Arc::new(Config {
+        secure_admin_cookie: base_url.starts_with("https://"),
         base_url,
         data_dir,
         public_reads: env_bool("PUBLIC_READS", true),
         max_upload_bytes,
         max_unpacked_bytes: 256 * 1024 * 1024,
     });
+    admin::initialize(
+        &pool,
+        env::var("ADMIN_USERNAME").unwrap_or_else(|_| "admin".into()),
+        env::var("ADMIN_INITIAL_PASSWORD").ok(),
+        &cfg.data_dir,
+    ).await?;
     let state = AppState { db: pool, cfg };
 
     // Expire interrupted uploads and remove orphaned temporary files every hour.
@@ -90,6 +99,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let app = Router::new()
         .route("/", get(handlers::home))
+        .route("/admin", get(admin::page))
+        .route("/admin/login", get(admin::page))
+        .route("/admin/api/login", post(admin::login))
+        .route("/admin/api/logout", post(admin::logout))
+        .route("/admin/api/me", get(admin::me))
+        .route("/admin/api/packages", get(admin::packages))
+        .route("/admin/api/tokens", get(admin::tokens).post(admin::create_token))
+        .route("/admin/api/tokens/revoke", post(admin::revoke_token))
+        .route("/admin/api/password", post(admin::change_password))
         .route("/healthz", get(handlers::health))
         .route("/api/search", get(handlers::search))
         .route("/api/packages/versions/new", get(handlers::begin_publish))
@@ -102,7 +120,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .with_state(state);
 
     let address: SocketAddr = env::var("BIND_ADDRESS")
-        .unwrap_or_else(|_| "0.0.0.0:8080".into()).parse()?;
+        .unwrap_or_else(|_| "0.0.0.0:6844".into()).parse()?;
     let listener = tokio::net::TcpListener::bind(address).await?;
     tracing::info!(%address, "Dart Pub registry listening");
     axum::serve(listener, app).with_graceful_shutdown(async {
